@@ -8,4 +8,5 @@ dependencies:
   - numpy=1.26.4
   - curl
   - coreutils
+  - procps-ng
   - ucsc-bigbedtobed=482
