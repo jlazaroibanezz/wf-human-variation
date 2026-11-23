@@ -26,3 +26,4 @@ From: mambaorg/micromamba:2.10.0
     python -c "import pandas, numpy"
     command -v curl
     command -v bigBedToBed
+    command -v ps
