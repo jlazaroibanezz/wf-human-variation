@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from collections import Counter, defaultdict
 
-# Permitir campos grandes, como la columna ANN de AnnotSV.
+# Allow large fields, such as AnnotSV's ANN column.
 max_field_size = sys.maxsize
 while True:
     try:
@@ -101,7 +101,7 @@ candidates_by_query = defaultdict(list)
 for r in candidate_rows:
     candidates_by_query[query_key(r)].append(r)
 
-# Recuperar métricas adicionales desde el registro UCSC original.
+# Retrieve additional metrics from the original UCSC record.
 reference_extra = {}
 
 with open(bed_file, "r", newline="") as f:
@@ -186,7 +186,7 @@ unique_status = {}
 for qkey, summary in summary_map.items():
     query_candidates = candidates_by_query.get(qkey, [])
 
-    # Contar solo candidatas que coincidan también en orientación.
+    # Count only candidates that also match in orientation.
     compatible = [
         c for c in query_candidates
         if c.get("ORIENTATION_MATCH", "").strip().lower() == "true"
@@ -208,8 +208,8 @@ for qkey, summary in summary_map.items():
         "BND_" + original_status
     )
 
-    # Asignar frecuencia únicamente cuando el diagnóstico inicial
-    # y el recuento de candidatas compatibles concuerdan.
+    # Assign a frequency only when the initial assessment
+    # and the count of compatible candidates agree.
     chosen = None
 
     if original_status == "one_candidate" and len(compatible) == 1:
@@ -276,7 +276,7 @@ for qkey, summary in summary_map.items():
 
     unique_status[qkey] = result["LR_MATCH_STATUS"]
 
-    # Actualizar todas las filas de AnnotSV pertenecientes a esta llamada.
+    # Update all AnnotSV rows belonging to this call.
     for row in table:
         if row.get("SV_type", "").strip().upper() not in ("TRA", "BND"):
             continue
@@ -286,7 +286,7 @@ for qkey, summary in summary_map.items():
 
         row.update(result)
 
-# Guardar el TSV enriquecido nuevo.
+# Write the new enriched TSV.
 with open(out, "w", newline="") as f:
     writer = csv.DictWriter(
         f,
@@ -298,8 +298,8 @@ with open(out, "w", newline="") as f:
     writer.writeheader()
     writer.writerows(table)
 
-# Añadir al informe una columna que distingue la compatibilidad individual
-# de cada candidata del estado global de la llamada.
+# Add report columns distinguishing each candidate's individual compatibility
+# from the overall call status.
 final_candidate_fields = list(candidate_fields)
 
 for c in (
