@@ -38,7 +38,9 @@ process GENERATE_HPO {
         exit 2
     fi
 
-    curl --fail --silent --show-error \
+    # Temporary workaround for the current GPAP TLS certificate-chain issue.
+    # -k disables TLS certificate verification for this request only.
+    curl -k --fail --silent --show-error \
         -H "Authorization: Basic \$GPAP_AUTH" \
         "https://gpap.nasertic.es/impactgenomica/casos/${caseId}" \
         -o gpap_case.json
