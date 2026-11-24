@@ -6,7 +6,7 @@ import re
 
 
 def normalize_second_bp(value):
-    """Devuelve únicamente cromosoma:posición del segundo breakend."""
+    """Return only the chromosome:position pair for the second breakend."""
     match = re.search(r"([^:\[\]]+):(\d+)", value or "")
     if match:
         return f"{match.group(1)}:{match.group(2)}"
@@ -106,7 +106,7 @@ def main():
     if args.max_distance < 0:
         raise SystemExit("--max-distance no puede ser negativo")
 
-    # Leer una sola consulta por llamada única BND/TRA.
+    # Read one query per unique BND/TRA call.
     queries = {}
     required = {"Samples_ID", "SV_chrom", "SV_start", "SV_type", "ALT"}
 
@@ -121,7 +121,7 @@ def main():
                 continue
             queries.setdefault(query_key(row), row)
 
-    # Indexar las variantes UCSC por sus dos cromosomas.
+    # Index UCSC variants by both chromosomes.
     reference_index = defaultdict(list)
     n_reference = 0
 
@@ -146,7 +146,7 @@ def main():
                 "chrom": norm_chrom(fields[0]),
                 "start0": start0,
                 "end0": end0,
-                # Convertir BED 0-based a posición de ruptura 1-based.
+                # Convert BED 0-based coordinates to 1-based breakpoint positions.
                 "primary_pos": start0 + 1,
                 "name": fields[3],
                 "second_bp": fields[20],
@@ -185,7 +185,7 @@ def main():
     summaries = []
     candidate_rows = []
 
-    # Orden determinista para poder comparar con los informes anteriores.
+    # Use deterministic ordering to allow comparison with previous reports.
     for qkey in sorted(queries):
         row = queries[qkey]
         raw_chrom = row.get("SV_chrom", "")
@@ -233,8 +233,8 @@ def main():
         local_chrom = norm_chrom(raw_chrom)
         position_candidates = []
 
-        # Direct: local del paciente -> primario UCSC;
-        # mate del paciente -> segundo breakpoint UCSC.
+        # Direct: patient local breakend -> primary UCSC breakend;
+        # patient mate breakend -> second UCSC breakpoint.
         for ref in reference_index.get((local_chrom, mate_chrom), []):
             d_local = abs(local_pos - ref["primary_pos"])
             d_mate = abs(mate_pos - ref["mate_pos"])
@@ -249,8 +249,8 @@ def main():
                     "orientation_match": orientation_match,
                 })
 
-        # Swapped: mate del paciente -> primario UCSC;
-        # local del paciente -> segundo breakpoint UCSC.
+        # Swapped: patient mate breakend -> primary UCSC breakend;
+        # patient local breakend -> second UCSC breakpoint.
         for ref in reference_index.get((mate_chrom, local_chrom), []):
             d_local = abs(local_pos - ref["mate_pos"])
             d_mate = abs(mate_pos - ref["primary_pos"])
@@ -267,7 +267,7 @@ def main():
                     "orientation_match": orientation_match,
                 })
 
-        # Evitar duplicar la misma combinación registro/orden.
+        # Avoid duplicating the same record/order combination.
         deduplicated = {}
         for candidate in position_candidates:
             ref = candidate["ref"]
