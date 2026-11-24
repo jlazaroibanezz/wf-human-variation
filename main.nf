@@ -92,13 +92,13 @@ workflow {
 
     if (params.svanna && !params.sv && !params.cnv) {
     throw new IllegalArgumentException(
-        "SvAnna requiere --sv o --cnv para disponer de un VCF de entrada."
+        "SvAnna requires --sv or --cnv to provide an input VCF."
     )
 }
 
     if (params.annotsv && !params.sv && !params.cnv) {
         throw new IllegalArgumentException(
-            "AnnotSV requiere --sv o --cnv para disponer de un VCF de entrada."
+            "AnnotSV requires --sv or --cnv to provide an input VCF."
         )
     }
 
@@ -767,17 +767,17 @@ workflow {
 
         if (params.mahi_mahi) {
 
-    // Reutilizar el alineamiento haplotipado:
+    // Reuse the haplotagged alignment:
     // [xam, xai, meta]
     mahi_input = clair_vcf.haplotagged_xam
 
-    // Seleccionar FASTA e índice de la referencia
+    // Select the reference FASTA and index
     ref_for_mahi = ref_channel.map {
         fasta, fai, cache, ref_path ->
         [fasta, fai]
     }
 
-    // Ejecutar Mahi-mahi con el sexo definido por el workflow
+    // Run Mahi-mahi using the sex assigned by the workflow
     mahi_results = mahi_mahi(
         mahi_input,
         ref_for_mahi,
@@ -991,7 +991,7 @@ workflow {
 
     // ============================================================
     // ============================================================
-    // Preparar los VCF de SV y CNV para anotación y priorización
+    // Prepare SV and CNV VCFs for annotation and prioritisation
     // ============================================================
 
     // SV: results_sv.for_phasing emite [meta, vcf, tbi]
@@ -1036,19 +1036,19 @@ workflow {
         tuple(fixed_meta, vcf, "${sample_id}.CNVs")
     }
 
-    // Canal común: [meta, vcf, sample_prefix]
+    // Shared channel: [meta, vcf, sample_prefix]
     all_variant_tool_input = sv_tool_input.mix(cnv_tool_input)
 
 
     // ============================================================
-    // SvAnna: priorización de SV y CNV
+    // SvAnna: SV and CNV prioritisation
     // ============================================================
 
 
     if (params.svanna) {
 
     // ------------------------------------------------------------
-    // Preparar los VCF con una clave común por muestra
+    // Prepare VCFs using a shared per-sample key
     // ------------------------------------------------------------
 
     svanna_vcfs_by_sample = all_variant_tool_input.map {
@@ -1071,7 +1071,7 @@ workflow {
     }
 
     // ------------------------------------------------------------
-    // Asociar cada VCF con el HPO de su muestra
+    // Associate each VCF with its sample's HPO terms
     // ------------------------------------------------------------
 
     svanna_input = svanna_vcfs_by_sample
@@ -1101,7 +1101,7 @@ workflow {
 
 
     // ============================================================
-    // AnnotSV y frecuencias UCSC: SV + CNV
+    // AnnotSV and UCSC frequencies: SV + CNV
     // ============================================================
 
     if (params.annotsv) {
@@ -1113,7 +1113,7 @@ workflow {
 
         annotsv_results = ANNOTSV_SV(annotsv_input_vcf)
 
-        // Referencia poblacional UCSC de long reads
+        // UCSC long-read population reference
         UCSC_LR_REFERENCE()
         ucsc_lr_reference_bed = UCSC_LR_REFERENCE.out.bed
 
@@ -1127,7 +1127,7 @@ workflow {
             ucsc_lr_script
         )
 
-        // Emparejamiento de breakends
+        // Breakend matching
         ucsc_lr_bnd_generator = Channel.value(
             file("${projectDir}/bin/generate_bnd_ucsc_candidates.py")
         )
