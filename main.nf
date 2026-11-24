@@ -92,13 +92,13 @@ workflow {
 
     if (params.svanna && !params.sv && !params.cnv) {
     throw new IllegalArgumentException(
-        "SvAnna requires --sv or --cnv to provide an input VCF."
+        "SvAnna requiere --sv o --cnv para disponer de un VCF de entrada."
     )
 }
 
     if (params.annotsv && !params.sv && !params.cnv) {
         throw new IllegalArgumentException(
-            "AnnotSV requires --sv or --cnv to provide an input VCF."
+            "AnnotSV requiere --sv o --cnv para disponer de un VCF de entrada."
         )
     }
 
