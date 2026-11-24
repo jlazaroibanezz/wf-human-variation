@@ -52,6 +52,16 @@ that will be used to launch the workflow:
 The secret is injected into the `GENERATE_HPO` task as an environment
 variable. The compute environment must be able to access the GPAP service.
 
+**TLS note:** the current GPAP endpoint may present a certificate chain that
+cannot be validated by some clients. As a temporary compatibility workaround,
+the GPAP request in `GENERATE_HPO` uses curl's `-k` option. This disables
+TLS certificate verification for that request and makes the connection
+vulnerable to server impersonation or interception. Keep the credential in the
+Nextflow secret (never in the script), use this only where the endpoint and
+network are trusted, and remove the workaround once GPAP serves a valid,
+complete certificate chain. The preferred long-term fix is to correct the
+server certificate chain or install the appropriate trusted CA.
+
 HPO identifiers are normalised to CURIE format. Obsolete terms are
 resolved using replacement terms from the HPO ontology. Terms that are
 invalid, absent from the ontology, obsolete without a replacement, or
