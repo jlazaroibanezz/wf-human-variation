@@ -51,18 +51,18 @@ import sys
 import re
 import csv
 
-# Cargar respuesta de GPAP
+# Load the GPAP response
 with open("gpap_case.json") as f:
     data = json.load(f)
 
-# Cargar ontologia HPO utilizada por SvAnna
+# Load the HPO ontology used by SvAnna
 with open(sys.argv[1]) as f:
     hp_data = json.load(f)
 
 graph = hp_data["graphs"][0]
 nodes = graph.get("nodes", [])
 
-# Convertir identificadores OBO a formato HP:XXXXXXX
+# Convert OBO identifiers to HP:XXXXXXX format
 def to_curie(value):
     if value is None:
         return ""
@@ -74,7 +74,7 @@ def to_curie(value):
 
     return value
 
-# Crear diccionario de terminos HPO
+# Build a dictionary of HPO terms
 nodes_by_id = {}
 
 for node in nodes:
@@ -83,7 +83,7 @@ for node in nodes:
     if re.fullmatch(r"HP:\\d{7}", term_id):
         nodes_by_id[term_id] = node
 
-# Obtener fenotipos positivos de GPAP
+# Retrieve positive phenotypes from GPAP
 positive_terms = set()
 
 for feature in data.get("features", []):
@@ -93,7 +93,7 @@ for feature in data.get("features", []):
     if term_id and presence in ("sí", "si", "yes"):
         positive_terms.add(str(term_id).strip())
 
-# Resolver terminos obsoletos
+# Resolve obsolete terms
 REPLACED_BY = "http://purl.obolibrary.org/obo/IAO_0100001"
 
 def resolve_hpo(term_id):
@@ -120,12 +120,12 @@ def resolve_hpo(term_id):
             or str(metadata.get("deprecated", "")).lower() == "true"
         )
 
-        # El termino esta vigente
+        # The term is current
         if not deprecated:
             status = "kept" if current == term_id else "replaced"
             return current, status
 
-        # Buscar reemplazo oficial
+        # Find the official replacement
         replacements = set()
 
         for prop in metadata.get("basicPropertyValues", []):
@@ -138,11 +138,11 @@ def resolve_hpo(term_id):
         if len(replacements) > 1:
             return None, "multiple_replacements"
 
-        # Comprobar tambien el estado del termino sustituto
+        # Also check the replacement term's status
         current = next(iter(replacements))
 
 
-# Normalizar todos los terminos positivos
+# Normalize all positive terms
 normalized_terms = set()
 report = []
 
@@ -160,12 +160,12 @@ for term in sorted(positive_terms):
     else:
         report.append([term, "", "discarded", status])
 
-# Generar fichero HPO definitivo
+# Write the final HPO file
 with open("hpo_terms.txt", "w") as f:
     for term in sorted(normalized_terms):
         f.write(term + "\\n")
 
-# Guardar trazabilidad de sustituciones y descartes
+# Record term replacements and discarded terms
 with open("hpo_terms_report.tsv", "w", newline="") as f:
     writer = csv.writer(f, delimiter="\\t")
     writer.writerow(["original_id", "final_id", "status", "reason"])
