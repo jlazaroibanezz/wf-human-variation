@@ -10,8 +10,8 @@ import pandas as pd
 
 PANEL_NAME = "1KG_Boehringer_ONT_Noyvert_888"
 
-# Columnas UCSC de noyvert.bed, numeradas desde cero.
-# Las coordenadas BED son 0-based, con extremo final exclusivo.
+# UCSC columns in noyvert.bed, indexed from zero.
+# BED coordinates are 0-based, with an exclusive end.
 UCSC_COLUMNS = {
     "name": 3,
     "svtype": 9,
@@ -74,8 +74,8 @@ def parse_int(value):
 def normalize_type(value):
     svtype = str(value).strip().upper()
 
-    # Sniffles/AnnotSV pueden representar translocaciones como TRA;
-    # UCSC registra el tipo correspondiente como BND.
+    # Sniffles/AnnotSV may represent translocations as TRA;
+    # UCSC records the corresponding type as BND.
     if svtype == "TRA":
         return "BND"
 
@@ -119,8 +119,8 @@ def load_reference(path):
     ref["start"] = ref["start"].astype(np.int64)
     ref["end"] = ref["end"].astype(np.int64)
 
-    # Índice por cromosoma y tipo para no comparar cada SV con
-    # las 107.445 variantes del panel.
+    # Index by chromosome and type to avoid comparing each SV against
+    # all 107,445 variants in the panel.
     groups = {}
 
     for key, group in ref.groupby(["chrom", "type"], sort=False):
@@ -188,8 +188,8 @@ def match_variant(row, groups, chromosomes, reciprocal_overlap,
     if chrom not in chromosomes:
         return empty_result("chromosome_not_in_panel")
 
-    # Para BND/TRA se necesita comparar también el punto de ruptura
-    # acompañante. No se fuerza una coincidencia basada en un solo punto.
+    # For BND/TRA, the mate breakpoint must also be compared.
+    # A match is not forced based on a single breakpoint.
     if svtype == "BND":
         return empty_result("BND_requires_mate_breakpoint")
 
@@ -202,8 +202,8 @@ def match_variant(row, groups, chromosomes, reciprocal_overlap,
     if group is None:
         return empty_result("no_candidate_same_chrom_type")
 
-    # AnnotSV informa la posición de inicio en coordenadas genómicas
-    # 1-based. La normalizamos al inicio 0-based usado por UCSC.
+    # AnnotSV reports the start position using 1-based genomic coordinates.
+    # Convert it to the 0-based start used by UCSC.
     query_start = start - 1
     query_len = abs(length) if length is not None else abs(end - start)
 
@@ -280,8 +280,8 @@ def match_variant(row, groups, chromosomes, reciprocal_overlap,
         if candidate_count == 0:
             return empty_result("no_match_by_threshold")
 
-        # Prioriza proximidad y, cuando hay tamaño disponible,
-        # similitud de longitud de la inserción.
+        # Prioritise proximity and, when size information is available,
+        # insertion-length similarity.
         costs = (
             distances[candidate_indices] / float(insertion_distance)
         )
@@ -377,8 +377,8 @@ def main():
             "Faltan columnas en AnnotSV: {}".format(missing)
         )
 
-    # Permite volver a ejecutar el script sobre un TSV enriquecido
-    # sin duplicar las columnas LR_*.
+    # Allow the script to be rerun on an enriched TSV
+    # without duplicating the LR_* columns.
     table = table.drop(
         [col for col in OUTPUT_COLUMNS if col in table.columns],
         axis=1,
