@@ -1,0 +1,50 @@
+# Example parameters for the custom wf-human-variation workflow.
+# Replace every placeholder with a path/value from your own environment.
+# Do not commit real sample identifiers, clinical metadata, or institutional paths.
+
+# Primary input
+bam: "/path/to/sample/bam_pass"
+ref: "/path/to/GRCh38_reference.fna.gz"
+sample_name: "SAMPLE_ID-01"
+out_dir: "/path/to/results/SAMPLE_ID-01"
+
+# Analysis modules
+snp: true
+sv: true
+mod: true
+str: true
+cnv: true
+phased: true
+force_strand: true
+
+# Custom extensions
+annotsv: true
+svanna: true
+mahi_mahi: true
+
+# SvAnna resources (obtain separately; see docs/CUSTOM_EXTENSIONS.md)
+svanna_container: "/path/to/svanna.sif"
+svanna_jar: "/path/to/svanna-cli.jar"
+svanna_db: "/path/to/svanna-database"
+
+# AnnotSV resources (GRCh38-compatible annotations are required)
+annotsv_txfile: "/path/to/MANE_RefSeq_transcripts.txt"
+annotsv_annotations: "/path/to/AnnotSV-3.5"
+
+# Mahi-mahi container
+mahi_mahi_container: "/path/to/mahi-mahi.sif"
+# Optional: restrict genotyping to one repeat locus
+# mahi_mahi_repeat_id: "HTT"
+# Optional: provide sex explicitly (XX or XY); otherwise the workflow infers it
+# sex: "XX"
+
+# UCSC long-read frequency/BND helper container.
+# Required when AnnotSV/UCSC-LR extension is enabled.
+ucsc_lr_container: "/path/to/ucsc-lr-frequency-procps.sif"
+
+# GPAP credentials are NOT parameters and must never be stored in this file.
+# Configure them separately with Nextflow Secrets:
+#   read -r -s -p "GPAP_AUTH: " GPAP_AUTH
+#   printf '\n'
+#   nextflow secrets set GPAP_AUTH "$GPAP_AUTH"
+#   unset GPAP_AUTH
