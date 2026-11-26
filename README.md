@@ -77,7 +77,14 @@ nextflow run . \
   -params-file /path/to/params.yaml
 ```
 
-The parameter file must define the input BAM and reference and any options/resources required by the selected analyses. The site configuration is **HPC-specific and is not included in this repository**: it must define the appropriate executor/queue or partition, resource limits, work directory and any site-specific container settings. Use Nextflow `>=24.04.0` and ensure Apptainer/Singularity is available on the cluster.
+Example starting files are provided in [`params.example.yaml`](params.example.yaml) and [`slurm.example.config`](slurm.example.config). Copy them to local files and replace every placeholder with paths and settings from your own environment:
+
+```bash
+cp params.example.yaml params.yaml
+cp slurm.example.config slurm.config
+```
+
+The parameter file must define the input BAM and reference and any options/resources required by the selected analyses. The Slurm configuration is a **generic template**, not a ready-to-use configuration: adapt the executor, partition names, resource limits and shared-data bind mount to your HPC system. Keep your real `params.yaml` and `slurm.config` local; they are excluded by `.gitignore`. Configure the GPAP credential separately through Nextflow Secrets as described in [Custom extensions documentation](docs/CUSTOM_EXTENSIONS.md). Use Nextflow `>=24.04.0` and ensure Apptainer/Singularity is available on the cluster.
 
 Alternatively, run the branch directly from GitHub without cloning:
 
