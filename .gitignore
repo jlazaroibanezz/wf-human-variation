@@ -72,3 +72,7 @@ __pycache__/
 nextflow.local.config
 params.local.yaml
 params.local.yml
+
+# Site-specific runtime files: use the committed example templates instead
+params.yaml
+slurm.config
